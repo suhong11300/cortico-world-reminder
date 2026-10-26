@@ -1,0 +1,162 @@
+{
+  "tools": [
+    {
+      "name": "reminder_add",
+      "description": "Add a reminder that wakes the conversation when it comes due. Give either in_minutes or at, not both.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "What to be reminded of, in the user's own words."
+          },
+          "in_minutes": {
+            "type": "number",
+            "description": "Minutes from now, 1 to 10080."
+          },
+          "at": {
+            "type": "string",
+            "description": "Absolute time in ISO 8601 with a timezone offset, e.g. 2026-10-27T18:30:00+08:00."
+          },
+          "repeat_minutes": {
+            "type": "number",
+            "description": "Repeat every N minutes after it comes due until handled; omit to remind once."
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "tags": [
+        "write"
+      ],
+      "summary": {
+        "zh": "记一条提醒,到点由 World 主动唤醒会话。",
+        "en": "Record a reminder that wakes the conversation when due."
+      }
+    },
+    {
+      "name": "reminder_list",
+      "description": "List the open reminders in due order, with their times and remaining time.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "include_closed": {
+            "type": "boolean",
+            "description": "Also list the most recent finished or cancelled reminders."
+          }
+        }
+      },
+      "tags": [
+        "read"
+      ],
+      "summary": {
+        "zh": "按时间顺序列出待提醒。",
+        "en": "List open reminders in due order."
+      }
+    },
+    {
+      "name": "reminder_done",
+      "description": "Mark one reminder as handled, so it stops repeating.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Reminder id from reminder_list."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "tags": [
+        "write"
+      ],
+      "summary": {
+        "zh": "把一条提醒标成已处理。",
+        "en": "Mark one reminder as handled."
+      }
+    },
+    {
+      "name": "reminder_cancel",
+      "description": "Cancel one open reminder without marking it as handled.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Reminder id from reminder_list."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "tags": [
+        "write"
+      ],
+      "summary": {
+        "zh": "取消一条提醒。",
+        "en": "Cancel one open reminder."
+      }
+    },
+    {
+      "name": "reminder_snooze",
+      "description": "Push one open reminder further out by N minutes and clear its fired count.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Reminder id from reminder_list."
+          },
+          "minutes": {
+            "type": "number",
+            "description": "How many minutes to push it out, 1 to 10080."
+          }
+        },
+        "required": [
+          "id",
+          "minutes"
+        ]
+      },
+      "tags": [
+        "write"
+      ],
+      "summary": {
+        "zh": "把一条提醒往后推若干分钟。",
+        "en": "Push one reminder further out."
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "reminder.ready",
+      "description": {
+        "zh": "World 挂载完成,附带待提醒条数。",
+        "en": "The World was mounted, with the number of open reminders."
+      }
+    },
+    {
+      "type": "reminder.due",
+      "description": {
+        "zh": "一条提醒到点、预告或需要重复提醒。",
+        "en": "A reminder came due, is due soon, or needs repeating."
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "key": "worlds.reminder.envPrompt",
+      "title": "提醒 · 环境提示词",
+      "role": "envPrompt",
+      "content": "这是一个本地提醒 World:待办存在本机,到点由它主动推事件叫你,不需要轮询。\n当前时间 {{reminder.now}};{{reminder.summary}};下一条是 {{reminder.next}}。\n用户说「几分钟后提醒我」「明天几点叫我」这类请求时,用 reminder_add 记下来(in_minutes 与 at 只给一个);到点事件来了就照着办,办完用 reminder_done 收尾,需要延后用 reminder_snooze。\n不要替用户代办「提醒」以外的决定,也不要把同一件事重复记多条。"
+    }
+  ]
+}
