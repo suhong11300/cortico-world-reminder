@@ -112,6 +112,8 @@ export class ReminderWorld implements World {
 
   private host: WorldHost | undefined;
   private timer: ReturnType<typeof setInterval> | undefined;
+  /** 宿主 core 未就绪时补投就绪事件用。 */
+  private greetTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(private readonly opts: ReminderWorldOptions) {}
 
@@ -176,12 +178,33 @@ export class ReminderWorld implements World {
     };
   }
 
-  /** 挂载时补投已过期的提醒,再按配置的节奏轮询。 */
+  /**
+   * 挂载:先把轮询节奏建起来,再投一次就绪事件。
+   * 顺序很重要——宿主 core 还在 bootstrap 时 pushEvent 会抛,抛了不能把定时器一起带走,
+   * 否则 World 看着「已启动」却永远不会提醒。
+   */
   async start(host: WorldHost): Promise<void> {
     this.host = host;
     const { file, recovered } = readStore(this.opts.dataDir);
     if (recovered) host.log.warn('提醒存储读取失败,已备份并重建: ' + this.opts.dataDir + '/reminder');
-    const pending = pendingItems(file);
+    this.timer = setInterval(() => {
+      void this.tick().catch((error: unknown) => host.log.warn('提醒扫描失败: ' + describeError(error)));
+    }, TICK_MS);
+    this.timer.unref?.();
+    try {
+      await this.greet(host, pendingItems(file));
+    } catch (error: unknown) {
+      host.log.info('就绪事件没投出去,2 秒后补投: ' + describeError(error));
+      this.greetTimer = setTimeout(() => {
+        void this.greet(host, pendingItems(readStore(this.opts.dataDir).file)).catch(() => undefined);
+      }, 2000);
+      this.greetTimer.unref?.();
+    }
+    await this.tick().catch((error: unknown) => host.log.warn('提醒扫描失败: ' + describeError(error)));
+  }
+
+  /** 挂载时的招呼:有待提醒就报条数与最近一条,没有就直说。 */
+  private async greet(host: WorldHost, pending: Reminder[]): Promise<void> {
     await host.pushEvent(
       {
         type: 'reminder.ready',
@@ -195,14 +218,13 @@ export class ReminderWorld implements World {
       },
       { trigger: 'flush' },
     );
-    this.timer = setInterval(() => { void this.tick(); }, TICK_MS);
-    this.timer.unref?.();
-    await this.tick();
   }
 
   async stop(): Promise<void> {
     if (this.timer) clearInterval(this.timer);
     this.timer = undefined;
+    if (this.greetTimer) clearTimeout(this.greetTimer);
+    this.greetTimer = undefined;
     this.host = undefined;
   }
 
@@ -376,4 +398,10 @@ export class ReminderWorld implements World {
       },
     };
   }
+}
+
+/** 把任意抛出物变成一句能读的话,不把堆栈写进日志。 */
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return typeof error === 'string' ? error : '未知错误';
 }

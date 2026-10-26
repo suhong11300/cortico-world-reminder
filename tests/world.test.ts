@@ -186,3 +186,39 @@ describe('提醒 World', () => {
     ]);
   });
 });
+
+describe('提醒 World 的挂载容错', () => {
+  /** 前几次 pushEvent 抛错,模拟宿主 core 还没就绪。 */
+  class FlakyHost extends FakeHost {
+    private left: number;
+    constructor(fails: number) {
+      super();
+      this.left = fails;
+    }
+    override async pushEvent(e: Parameters<FakeHost['pushEvent']>[0], opts?: Parameters<FakeHost['pushEvent']>[1]) {
+      if (this.left > 0) {
+        this.left -= 1;
+        throw new Error('core not ready');
+      }
+      return super.pushEvent(e, opts);
+    }
+  }
+
+  it('就绪事件抛错也不打断 start,到点的提醒照样投出去', async () => {
+    const world = makeWorld();
+    await tool(world, 'reminder_add').handler({ text: '喝水', in_minutes: 1 }, CALL);
+    clock += 2 * MIN;
+    const host = new FlakyHost(1);
+    await expect(world.start(host)).resolves.toBeUndefined();
+    expect(host.events.some((e) => e.type === 'reminder.due')).toBe(true);
+    await world.stop();
+  });
+
+  it('三轮推送全挂时 start 仍然返回,不会把定时器饿死', async () => {
+    const world = makeWorld();
+    const host = new FlakyHost(99);
+    await expect(world.start(host)).resolves.toBeUndefined();
+    expect(host.events).toEqual([]);
+    await world.stop();
+  });
+});
