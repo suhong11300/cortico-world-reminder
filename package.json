@@ -1,8 +1,8 @@
 {
   "name": "cortico-world-reminder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "description": "Cortico World: local reminders that wake the conversation when they come due",
+  "description": "在对话中按设定时间提醒事项。支持重复提醒、提前预告与延后；离线期间错过的提醒在下次启动时补发。",
   "license": "MIT",
   "keywords": [
     "cortico-world",
@@ -26,11 +26,11 @@
     "locales": {
       "zh": {
         "displayName": "提醒",
-        "description": "到点自己开口叫你:提前预告、重复提醒都能配,关机错过的下次开机补上。"
+        "description": "在对话中按设定时间提醒事项。支持重复提醒、提前预告与延后；离线期间错过的提醒在下次启动时补发。"
       },
       "en": {
         "displayName": "Reminder",
-        "description": "Speaks up when a reminder comes due: lead time, repeats, and a catch-up pass for what was missed while the bot was off."
+        "description": "Reminds you in conversation at the times you set. Supports repeats, early notice and snooze; reminders missed while offline are delivered on the next start."
       }
     }
   },
