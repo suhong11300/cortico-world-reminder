@@ -5,6 +5,14 @@
   "description": "在对话中按设定时间提醒事项。支持重复提醒、提前预告与延后；离线期间错过的提醒在下次启动时补发。",
   "license": "MIT",
   "author": "苏鸿与维基 (suhong11300)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suhong11300/cortico-world-reminder.git"
+  },
+  "homepage": "https://github.com/suhong11300/cortico-world-reminder#readme",
+  "bugs": {
+    "url": "https://github.com/suhong11300/cortico-world-reminder/issues"
+  },
   "keywords": [
     "cortico-world",
     "cortico",
