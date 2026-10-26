@@ -1,9 +1,10 @@
 {
   "name": "cortico-world-reminder",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "在对话中按设定时间提醒事项。支持重复提醒、提前预告与延后；离线期间错过的提醒在下次启动时补发。",
   "license": "MIT",
+  "author": "苏鸿与维基 (suhong11300)",
   "keywords": [
     "cortico-world",
     "cortico",
@@ -39,6 +40,7 @@
     "icon.svg",
     "README.md",
     "CHANGELOG.md",
+    "LICENSE",
     "describe.json"
   ],
   "scripts": {
