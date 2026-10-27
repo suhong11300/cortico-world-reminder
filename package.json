@@ -1,6 +1,6 @@
 {
   "name": "cortico-world-reminder",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "description": "在对话中按设定时间提醒事项。支持重复提醒、提前预告与延后；离线期间错过的提醒在下次启动时补发。",
   "license": "MIT",
@@ -16,7 +16,14 @@
   "keywords": [
     "cortico-world",
     "cortico",
-    "reminder"
+    "reminder",
+    "coopanion",
+    "desktop-pet",
+    "companion",
+    "schedule",
+    "notification",
+    "reminder-tool",
+    "time"
   ],
   "engines": {
     "node": ">=22"

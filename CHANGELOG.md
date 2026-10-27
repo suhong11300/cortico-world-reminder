@@ -7,6 +7,13 @@
 - 补 `repository` / `homepage` / `bugs`，指向 github.com/suhong11300/cortico-world-reminder。
 
 代码与上一版完全一致，不涉及行为变化。
+## 0.1.3
+
+### 文档
+
+- README 换成统一首屏：npm / 许可证 / node / world api 四个徽章、一句话定位、要点清单、元信息行与目录；二级标题去掉标点，锚点与目录逐条对齐。
+- 标签口径与实际 `cortico.tags` 对齐；补 `keywords` 便于在 npm 与 GitHub 搜索到。
+
 ## 0.1.1
 
 简介改为正式说明体：先一句定位，再用分号分列能力与边界，去掉口语化措辞与第二人称。
